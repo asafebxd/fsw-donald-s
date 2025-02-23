@@ -63,7 +63,7 @@ CREATE TABLE "OrderProduct" (
     "id" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
     "orderId" INTEGER NOT NULL,
-    "quantity" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
