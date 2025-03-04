@@ -2,12 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConsumptionMethod } from "@prisma/client";
+import { loadStripe } from '@stripe/stripe-js'
 import { Loader2Icon } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useContext, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from 'react-number-format'
-import { toast } from "sonner";
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage,  } from
 import { Input } from "@/components/ui/input";
 
 import { createOrder } from "../actions/create-order";
+import { createStripeCheckout } from "../actions/create-stripe-checkout";
 import { CartContext } from "../context/cart";
 import { isValidCpf } from "../helpers/cpf";
 
@@ -66,18 +67,31 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
 
     const onSubmit = async (data: FormSchema) => {
         try {
-            const consumptionMethod = searchParams.get("consumptionMethod") as ConsumptionMethod;
+            const consumptionMethod = searchParams.get(
+              "consumptionMethod",
+            ) as ConsumptionMethod;
             startTransition(async () => {
-                await createOrder({
-                    consumptionMethod,
-                    customerCpf: data.cpf,
-                    customerName: data.name,
-                    products,
-                    slug
-                });
-                onOpenChange(false)
-                toast.success("Pedido finalizado com sucesso")
-            })
+              const order = await createOrder({
+                consumptionMethod,
+                customerCpf: data.cpf,
+                customerName: data.name,
+                products,
+                slug,
+              });
+              const { sessionId } = await createStripeCheckout({
+                products,
+                slug,
+                consumptionMethod,
+                orderId: order.id,
+              });
+              const stripe = await loadStripe(
+                process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!,
+              );
+              if (!stripe) return;
+              await stripe.redirectToCheckout({
+                sessionId,
+              });
+            });
         } catch (error) {
             console.error(error)
         }
