@@ -31,11 +31,9 @@ export async function POST(request: Request) {
         webhookSecret
     )
 
-    switch (event.type) {
-        case "checkout.session.async_payment_succeeded": {
-            const orderId = event.data.object.metadata?.orderId;
+    if (event.type === "checkout.session.completed") {
+        const orderId = event.data.object.metadata?.orderId;
         
-
         if (!orderId) {
             return NextResponse.json({
                 received: true,
@@ -57,46 +55,38 @@ export async function POST(request: Request) {
                 }
             }
         })
-        revalidatePath(`/${order.restaurant.slug}/menu`);
-        }
-
-        case "charge.failed": {
+        revalidatePath(`/${order.restaurant.slug}/orders`);
+        } else if (event.type === "charge.failed") {
             const orderId = event.data.object.metadata?.orderId;
         
 
-        if (!orderId) {
-            return NextResponse.json({
-                received: true,
-            });
-        }
-
-        const order = await db.order.update({
-            where: {
-                id: Number(orderId)
-            },
-            data: {
-                status: "PAYMENT_CONFIRMED"
-            },
-            include: {
-                restaurant: {
-                    select: {
-                        slug: true
+            if (!orderId) {
+                return NextResponse.json({
+                    received: true,
+                });
+            }
+    
+            const order = await db.order.update({
+                where: {
+                    id: Number(orderId)
+                },
+                data: {
+                    status: "PAYMENT_CONFIRMED"
+                },
+                include: {
+                    restaurant: {
+                        select: {
+                            slug: true
+                        }
                     }
                 }
+            })
+            revalidatePath(`/${order.restaurant.slug}/orders`);
             }
+        return NextResponse.json({
+            received: true,
         })
-        revalidatePath(`/${order.restaurant.slug}/menu`);
-        }
-    }
-
-    const paymentIsSuccessful = event.type === "checkout.session.completed";
-    
-    if (paymentIsSuccessful) {
-        
-    }
-
-    return NextResponse.json({
-        received: true,
-    })
-
 }
+    
+
+
