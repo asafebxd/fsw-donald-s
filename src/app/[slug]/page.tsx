@@ -6,6 +6,8 @@ import { db } from "@/lib/prisma"
 
 import ConsumptionMethodOption from "./components/consumption-method-option"
 
+export const dynamic = "force-dynamic";
+
 interface RestaurantPageProps {
     params: Promise<{slug: string}>
 }

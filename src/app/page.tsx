@@ -3,8 +3,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const HomePage = async () => {
-  const restaurants = await db.restaurant.findMany({
+  const restaurants: Array<{ id: string; name: string; slug: string }> =
+    await db.restaurant.findMany({
     orderBy: {
       name: "asc",
     },
@@ -25,7 +28,7 @@ const HomePage = async () => {
 
         <div className="flex flex-col gap-3">
           {restaurants.length > 0 ? (
-            restaurants.map((restaurant) => (
+            restaurants.map((restaurant: (typeof restaurants)[number]) => (
               <Button key={restaurant.id} asChild className="w-full" size="lg">
                 <Link href={`/${restaurant.slug}`}>{restaurant.name}</Link>
               </Button>

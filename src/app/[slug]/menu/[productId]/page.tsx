@@ -6,6 +6,8 @@ import { db } from "@/lib/prisma";
 import ProductDetails from "./components/product-detail";
 import ProductHeader from "./components/product-header";
 
+export const dynamic = "force-dynamic";
+
 interface ProductPageProps {
     params: Promise<{ slug: string; productId: string }>;
 }

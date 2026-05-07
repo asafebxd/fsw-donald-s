@@ -5,6 +5,8 @@ import { isValidCpf, removeCpfPunctuation } from "../menu/helpers/cpf";
 import CpfForm from "./components/cpf-form";
 import OrderList from "./components/orders-list";
 
+export const dynamic = "force-dynamic";
+
 interface OrdersPageProps {
     searchParams: Promise<{ cpf: string }>;
 }

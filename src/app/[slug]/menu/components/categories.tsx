@@ -68,7 +68,7 @@ const RestaurantCategories = ({restaurant}: RestaurantCategoriesProps) => {
 
             <ScrollArea className="w-full">
                 <div className="flex w-max space-x-4 p-4 pt-8">
-                    {restaurant.menuCategories.map(category => (
+                    {restaurant.menuCategories.map((category: MenuCategoriesWithProductes) => (
                         <Button onClick={() => handleCategoryClick(category)} key={category.id} variant={getCategoryButtonVariant(category)} size="sm" className="rounded-full">
                             {category.name}
                         </Button>
